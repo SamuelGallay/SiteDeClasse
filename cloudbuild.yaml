@@ -1,3 +1,13 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ 'build', '-t', 'gcr.io/erudite-descent-342509/my-image', '.' ]
+  entrypoint: 'bash'
+  args: ['-c', 'docker pull europe-west3-docker.pkg.dev/erudite-descent-342509/artifact-repository/image-name || exit 0']
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ 
+    'build', 
+    '-t', 'europe-west3-docker.pkg.dev/erudite-descent-342509/artifact-repository/image-name', 
+    '--cache-from', 'europe-west3-docker.pkg.dev/erudite-descent-342509/artifact-repository/image-name', 
+    '.' ]
+
+images:
+- 'europe-west3-docker.pkg.dev/erudite-descent-342509/artifact-repository/image-name'
