@@ -4,6 +4,6 @@ let () =
   @@ Dream.router
        [
          Dream.get "/" (fun _ ->
-             Dream.html "This was deployed automatically (1) !");
+             Dream.html "This was deployed automatically (3) !");
          Dream.get "/static/**" @@ Dream.static "static";
        ]

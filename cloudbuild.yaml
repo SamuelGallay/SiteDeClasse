@@ -1,18 +1,25 @@
 steps:
+
+# Pulling latest build
 - name: 'gcr.io/cloud-builders/docker'
   entrypoint: 'bash'
   args: ['-c', 'docker pull europe-west3-docker.pkg.dev/erudite-descent-342509/artifact-repository/image-name || exit 0']
+
+# Building
 - name: 'gcr.io/cloud-builders/docker'
   args: [ 
     'build', 
     '-t', 'europe-west3-docker.pkg.dev/erudite-descent-342509/artifact-repository/image-name', 
     '--cache-from', 'europe-west3-docker.pkg.dev/erudite-descent-342509/artifact-repository/image-name', 
     '.' ]
+
+# Saving the build
+- name: 'gcr.io/cloud-builders/docker'
+  args: ["push", 'europe-west3-docker.pkg.dev/erudite-descent-342509/artifact-repository/image-name']
+
+# Pushing to Cloud Run
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: gcloud
   args: ['run', 'deploy', 'hello', '--image', 'europe-west3-docker.pkg.dev/erudite-descent-342509/artifact-repository/image-name', '--region', 'europe-west3']
-
-images:
-- 'europe-west3-docker.pkg.dev/erudite-descent-342509/artifact-repository/image-name'
 
 timeout: 1000s
