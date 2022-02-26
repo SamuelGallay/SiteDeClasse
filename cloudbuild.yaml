@@ -8,6 +8,9 @@ steps:
     '-t', 'europe-west3-docker.pkg.dev/erudite-descent-342509/artifact-repository/image-name', 
     '--cache-from', 'europe-west3-docker.pkg.dev/erudite-descent-342509/artifact-repository/image-name', 
     '.' ]
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args: ['run', 'deploy', 'hello', '--image', 'europe-west3-docker.pkg.dev/erudite-descent-342509/artifact-repository/image-name', '--region', 'europe-west3']
 
 images:
 - 'europe-west3-docker.pkg.dev/erudite-descent-342509/artifact-repository/image-name'

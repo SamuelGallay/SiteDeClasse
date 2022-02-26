@@ -3,6 +3,6 @@ let () =
   @@ Dream.logger
   @@ Dream.router
        [
-         Dream.get "/" (fun _ -> Dream.html "Samuel");
+         Dream.get "/" (fun _ -> Dream.html "This was deployed automatically !");
          Dream.get "/static/**" @@ Dream.static "static";
        ]
