@@ -1,3 +1,5 @@
 (executable
  (name server)
- (libraries dream))
+ (libraries dream cohttp-lwt-unix yojson)
+ (preprocess
+  (pps ppx_yojson_conv ppx_deriving.show)))
