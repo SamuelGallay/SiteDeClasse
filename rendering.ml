@@ -3,7 +3,7 @@ open Html
 
 let html_to_string html = Format.asprintf "%a" (Tyxml.Html.pp ()) html
 
-let index =
+let index () =
   html
     (head (title (txt "Titre")) [])
     (body
