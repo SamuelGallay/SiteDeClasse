@@ -16,9 +16,7 @@ let form r =
         | Some n ->
             let* res = Storage.push_file n content in
             Lwt.return (n, String.length content, (res :> code))
-        | None ->
-            Lwt.return
-              ("This file don't have a name", String.length content, `Not_Pushed)
+        | None -> Lwt.return ("This file don't have a name", String.length content, `Not_Pushed)
       in
       let* files = files |> List.map f |> Lwt.all in
       Rendering.files files

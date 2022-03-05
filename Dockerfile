@@ -4,4 +4,4 @@ RUN ["/bin/bash", "-c", "opam install -y dream ppx_yojson_conv cohttp-lwt-unix p
 COPY --chown=opam . SiteDeClasse
 WORKDIR SiteDeClasse
 RUN ["/bin/bash", "-c", "eval $(opam env) && dune build"]
-ENTRYPOINT ["/home/opam/SiteDeClasse/_build/default/server.exe"]
+ENTRYPOINT ["_build/default/src/server.exe"]
