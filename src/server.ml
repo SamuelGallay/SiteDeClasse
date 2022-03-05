@@ -7,7 +7,7 @@ let () =
   @@ Dream.router
        [
          Dream.get "/" Handler.main;
-         Dream.get "/documents" Handler.documents;
+         Dream.post "/refresh_documents" Handler.refresh_documents;
          Dream.get "/static/**" @@ Dream.static "static";
          Dream.post "/form" Handler.form;
          Dream.get "/favicon.ico" (Dream.from_filesystem "static" "favicon.ico");

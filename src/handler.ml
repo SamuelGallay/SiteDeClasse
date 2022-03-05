@@ -1,9 +1,11 @@
 let ( let* ) = Lwt.bind
 let main r = Rendering.index (Dream.csrf_token r)
 
-let documents _r =
+let refresh_documents r =
   let* l = Storage.get_objects () in
-  Rendering.documents l
+  Dream.log "Updated Documents !";
+  State.documents := Some l;
+  Dream.redirect r "/"
 
 type code = [ `Not_Pushed | `Success | `Failure ]
 
