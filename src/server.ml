@@ -11,4 +11,5 @@ let () =
          Dream.get "/static/**" @@ Dream.static "static";
          Dream.post "/form" Handler.form;
          Dream.get "/favicon.ico" (Dream.from_filesystem "static" "favicon.ico");
+         Dream.post "/upload" Handler.upload;
        ]

@@ -32,7 +32,18 @@ let doc_elt csrf =
       let f (name, link) = li [ a ~a:[ a_href link ] [ txt name ] ] in
       [ ul (List.map f l); refresh csrf ]
 
-let index csrf_token =
+let text_elt csrf =
+  form
+    ~a:[ a_action "/upload"; a_method `Post ]
+    [
+      input ~a:[ a_input_type `Hidden; a_name "dream.csrf"; a_value csrf ] ();
+      textarea ~a:[ a_name "text" ] (txt !State.test);
+      button ~a:[ a_button_type `Submit ] [ txt "Mettre à jour" ];
+    ]
+
+let content () = !State.test |> Omd.of_string |> Omd.to_html |> Unsafe.data
+
+let index csrf =
   html header_elt
     (body
        [
@@ -40,9 +51,9 @@ let index csrf_token =
          div
            ~a:[ a_class [ "row" ] ]
            [
-             div ~a:[ a_class [ "col-2"; "menu" ] ] (doc_elt csrf_token);
-             div ~a:[ a_class [ "col-8" ] ] [ State.content ];
-             div ~a:[ a_class [ "col-2" ] ] [ form_elt csrf_token ];
+             div ~a:[ a_class [ "col-2"; "menu" ] ] (doc_elt csrf);
+             div ~a:[ a_class [ "col-8" ] ] [ content (); text_elt csrf ];
+             div ~a:[ a_class [ "col-2" ] ] [ form_elt csrf ];
            ];
        ])
   |> html_to_string |> Dream.html

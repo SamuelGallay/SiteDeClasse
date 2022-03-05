@@ -23,3 +23,11 @@ let form r =
       let* files = files |> List.map f |> Lwt.all in
       Rendering.files files
   | _ -> Dream.empty `Bad_Request
+
+let upload r =
+  let* res = Dream.form r in
+  match res with
+  | `Ok [ ("text", content) ] ->
+      State.test := content;
+      Dream.redirect r "/"
+  | _ -> Dream.redirect r "/"

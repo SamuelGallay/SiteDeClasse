@@ -1,5 +1,5 @@
 (executable
  (name server)
- (libraries dream cohttp-lwt-unix yojson tyxml magic-mime x509)
+ (libraries dream cohttp-lwt-unix yojson tyxml magic-mime x509 omd)
  (preprocess
   (pps ppx_yojson_conv ppx_deriving.show)))
