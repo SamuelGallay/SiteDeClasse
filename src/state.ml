@@ -1,8 +1,4 @@
-let (documents : (string * string) list option ref) = ref None
-
-let content =
-  let open Tyxml.Html in
-  div ~a:[] [ h1 [ txt "This is cool" ]; txt "Lorem ipsum dolor sit amet, consectetur..." ]
+module StringMap = Map.Make (String)
 
 let read_whole_file filename =
   let ch = open_in filename in
@@ -10,4 +6,8 @@ let read_whole_file filename =
   close_in ch;
   s
 
+let (documents : (string * string) list option ref) = ref None
 let test = ref (read_whole_file "pages/main.md")
+let (messages : string list StringMap.t ref) = ref StringMap.empty
+let get_messages id = match StringMap.find_opt id !messages with Some l -> l | None -> []
+let add_message id m = messages := StringMap.add id (m :: get_messages id) !messages

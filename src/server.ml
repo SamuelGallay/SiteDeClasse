@@ -6,10 +6,10 @@ let () =
   @@ Dream.logger @@ Dream.memory_sessions
   @@ Dream.router
        [
-         Dream.get "/" Handler.main;
+         Dream.get "/" Handler.index;
          Dream.post "/refresh_documents" Handler.refresh_documents;
          Dream.get "/static/**" @@ Dream.static "static";
-         Dream.post "/form" Handler.form;
+         Dream.post "/form" Handler.push_documents;
          Dream.get "/favicon.ico" (Dream.from_filesystem "static" "favicon.ico");
-         Dream.post "/upload" Handler.upload;
+         Dream.post "/upload" Handler.upload_markdown;
        ]

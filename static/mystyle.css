@@ -78,6 +78,14 @@ textarea {
     cursor: pointer;
 }
 
+.red-msg {
+  background-color: red;
+}
+
+.orange-msg {
+  background-color: orange;
+}
+
 .row::after {
     content: "";
     clear: both;

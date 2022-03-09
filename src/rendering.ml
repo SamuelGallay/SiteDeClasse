@@ -5,25 +5,34 @@ let html_to_string html = Format.asprintf "%a" (Tyxml.Html.pp ()) html
 
 let header_elt =
   head
-    (title (txt "Titre"))
+    (title (txt "Titre 2"))
     [
       link ~rel:[ `Stylesheet ] ~href:"static/mystyle.css" ~a:[] ();
       meta ~a:[ a_name "viewport"; a_content "width=device-width, initial-scale=1.0" ] ();
     ]
 
 let form_elt csrf_token =
-  form
-    ~a:[ a_action "/form"; a_method `Post; a_enctype "multipart/form-data" ]
+  div
+    ~a:[ a_class [ "col-12" ] ]
     [
-      input ~a:[ a_input_type `Hidden; a_name "dream.csrf"; a_value csrf_token ] ();
-      label ~a:[ a_class [ "custom-file-upload" ] ] [ input ~a:[ a_input_type `File; a_name "file" ] () ];
-      button ~a:[ a_button_type `Submit ] [ txt "Submit" ];
+      form
+        ~a:[ a_action "/form"; a_method `Post; a_enctype "multipart/form-data" ]
+        [
+          input ~a:[ a_input_type `Hidden; a_name "dream.csrf"; a_value csrf_token ] ();
+          label
+            ~a:[ a_class [ "custom-file-upload" ] ]
+            [ input ~a:[ a_input_type `File; a_name "file" ] () ];
+          button ~a:[ a_button_type `Submit ] [ txt "Submit" ];
+        ];
     ]
 
 let refresh csrf =
   form
     ~a:[ a_action "/refresh_documents"; a_method `Post ]
-    [ input ~a:[ a_input_type `Hidden; a_name "dream.csrf"; a_value csrf ] (); button ~a:[ a_button_type `Submit ] [ txt "Refresh" ] ]
+    [
+      input ~a:[ a_input_type `Hidden; a_name "dream.csrf"; a_value csrf ] ();
+      button ~a:[ a_button_type `Submit ] [ txt "Refresh" ];
+    ]
 
 let doc_elt csrf =
   match !State.documents with
@@ -31,6 +40,11 @@ let doc_elt csrf =
   | Some l ->
       let f (name, link) = li [ a ~a:[ a_href link ] [ txt name ] ] in
       [ ul (List.map f l); refresh csrf ]
+
+let msg_elt id =
+  let msg = State.get_messages id in
+  let f x = li [ txt x ] in
+  div ~a:[ a_class [ "orange-msg"; "col-12" ] ] [ txt "Messages :"; ul (List.map f msg) ]
 
 let text_elt csrf =
   form
@@ -43,7 +57,7 @@ let text_elt csrf =
 
 let content () = !State.test |> Omd.of_string |> Omd.to_html |> Unsafe.data
 
-let index csrf =
+let index csrf id =
   html header_elt
     (body
        [
@@ -53,16 +67,7 @@ let index csrf =
            [
              div ~a:[ a_class [ "col-2"; "menu" ] ] (doc_elt csrf);
              div ~a:[ a_class [ "col-8" ] ] [ content (); text_elt csrf ];
-             div ~a:[ a_class [ "col-2" ] ] [ form_elt csrf ];
+             div ~a:[ a_class [ "col-2" ] ] [ form_elt csrf; msg_elt id ];
            ];
        ])
-  |> html_to_string |> Dream.html
-
-let files files =
-  let string_of_status = function
-    | `Not_Pushed -> "File wasn't pushed to the database."
-    | `Success -> "File was successfully pushed to the database."
-    | `Failure -> "File failed to be pushed to the database."
-  in
-  let f (name, length, status) = li [ txt (sprintf "File has name '%s' and is of size %i. %s" name length (string_of_status status)) ] in
-  html (head (title (txt "Titre")) []) (body [ ul (List.map f files) ]) |> html_to_string |> Dream.html
+  |> html_to_string

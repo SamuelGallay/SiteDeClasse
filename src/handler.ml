@@ -1,5 +1,5 @@
 let ( let* ) = Lwt.bind
-let main r = Rendering.index (Dream.csrf_token r)
+let index r = Rendering.index (Dream.csrf_token r) (Dream.session_id r) |> Dream.html
 
 let refresh_documents r =
   let* l = Storage.get_objects () in
@@ -7,24 +7,20 @@ let refresh_documents r =
   State.documents := Some l;
   Dream.redirect r "/"
 
-type code = [ `Not_Pushed | `Success | `Failure ]
-
-let form r =
+let push_documents r =
   let* res = Dream.multipart r in
+  let id = Dream.session_id r in
   match res with
   | `Ok [ ("file", files) ] ->
-      let f (name, content) =
-        match name with
-        | Some n ->
-            let* res = Storage.push_file n content in
-            Lwt.return (n, String.length content, (res :> code))
-        | None -> Lwt.return ("This file don't have a name", String.length content, `Not_Pushed)
-      in
-      let* files = files |> List.map f |> Lwt.all in
-      Rendering.files files
-  | _ -> Dream.empty `Bad_Request
+      let* messages = files |> List.map Storage.push_and_return_message |> Lwt.all in
+      List.iter (State.add_message id) messages;
+      if messages = [] then State.add_message id "No file selected";
+      Dream.redirect r "/"
+  | _ ->
+      State.add_message id "Error in Request";
+      Dream.redirect r "/"
 
-let upload r =
+let upload_markdown r =
   let* res = Dream.form r in
   match res with
   | `Ok [ ("text", content) ] ->
