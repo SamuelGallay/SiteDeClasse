@@ -5,7 +5,7 @@ let html_to_string html = Format.asprintf "%a" (Tyxml.Html.pp ()) html
 
 let header_elt =
   head
-    (title (txt "Titre 2"))
+    (title (txt "Site de Classe"))
     [
       link ~rel:[ `Stylesheet ] ~href:"static/mystyle.css" ~a:[] ();
       meta ~a:[ a_name "viewport"; a_content "width=device-width, initial-scale=1.0" ] ();
