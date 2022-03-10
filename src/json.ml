@@ -14,3 +14,7 @@ type storage_object = { name : string; mediaLink : string }
 [@@deriving yojson] [@@yojson.allow_extra_fields]
 
 type object_list = { kind : string; items : storage_object list } [@@deriving yojson]
+
+(* Passwords *)
+type user = { user_name : string; password : string } [@@deriving yojson]
+type user_list = user list [@@deriving yojson]

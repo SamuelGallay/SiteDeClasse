@@ -7,8 +7,22 @@ let header_elt =
   head
     (title (txt "Site de Classe"))
     [
-      link ~rel:[ `Stylesheet ] ~href:"static/mystyle.css" ~a:[] ();
       meta ~a:[ a_name "viewport"; a_content "width=device-width, initial-scale=1.0" ] ();
+      link ~rel:[ `Stylesheet ] ~href:"static/mystyle.css" ~a:[] ();
+      link
+        ~rel:[ `Stylesheet ]
+        ~href:"https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css" ~a:[] ();
+      script
+        ~a:[ a_defer (); a_src "https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js" ]
+        (txt "");
+      script
+        ~a:
+          [
+            a_defer ();
+            a_src "https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js";
+            a_onload "renderMathInElement(document.body);";
+          ]
+        (txt "");
     ]
 
 let form_elt csrf_token =

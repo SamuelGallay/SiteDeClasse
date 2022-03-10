@@ -2,6 +2,7 @@
 (*                      Utilitary and Base64url                         *)
 (* ******************************************************************** *)
 open Json
+open BasicTypes
 
 let sprintf = Format.sprintf
 let ( let* ) = Lwt.bind
@@ -41,7 +42,7 @@ let base64url_signature_RSA_SHA256 s =
 (*                       Creating Request                               *)
 (* ******************************************************************** *)
 
-let form_jwt () =
+let create_jwt () =
   let header =
     { alg = "RS256"; typ = "JWT" } |> Json.yojson_of_header |> Yojson.Safe.to_string |> base64url
   in
@@ -59,8 +60,9 @@ let form_jwt () =
   let signature = base64url_signature_RSA_SHA256 (header ^ "." ^ claim_set) in
   sprintf "%s.%s.%s" header claim_set signature
 
-let get_token jwt =
+let get_token () =
   let open Cohttp_lwt_unix in
+  let jwt = create_jwt () in
   let url = "https://oauth2.googleapis.com/token" in
   let uri =
     Uri.with_query' (Uri.of_string url)
@@ -69,4 +71,5 @@ let get_token jwt =
   let* _resp, body = Client.post uri in
   let* json_string = Cohttp_lwt.Body.to_string body in
   let access_token = access_token_of_yojson (Yojson.Safe.from_string json_string) in
-  Lwt.return (remove_trailing_dots access_token.access_token)
+  Lwt.return
+    { token = remove_trailing_dots access_token.access_token; expiration = Unix.time () +. 2500. }

@@ -2,6 +2,9 @@
 
 Cette page est écrite en Markdown, et peut être éditée dans la zone de texte en dessous. Markdown permet d'écrire des textes en **gras**, en *italique*, etc...
 
+Et même des maths : 
+$$f(z)\cdot \mathrm{Ind}\_\gamma (z) = {1 \over 2\pi i} \int\_\gamma {f(\xi) \over \xi-z}~\mathrm d\xi$$
+
 Il existe trois tailles de titres :
 
 # Un grand titre
