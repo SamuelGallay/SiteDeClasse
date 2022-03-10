@@ -56,12 +56,14 @@ let text_elt csrf =
     ]
 
 let content () = !State.test |> Omd.of_string |> Omd.to_html |> Unsafe.data
+let menu_nav = nav ~a:[] [ ul [ li [ txt "Hello" ] ] ]
 
 let index csrf id =
   html header_elt
     (body
        [
-         div ~a:[ a_class [ "row"; "header" ] ] [ h1 [ txt "Main Title" ] ];
+         header ~a:[ a_class [ "row" ] ] [ h1 [ txt "Main Title" ] ];
+         menu_nav;
          div
            ~a:[ a_class [ "row" ] ]
            [

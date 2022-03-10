@@ -60,7 +60,6 @@ let form_jwt () =
   sprintf "%s.%s.%s" header claim_set signature
 
 let get_token jwt =
-  (* let open Cohttp in *)
   let open Cohttp_lwt_unix in
   let url = "https://oauth2.googleapis.com/token" in
   let uri =
@@ -70,5 +69,4 @@ let get_token jwt =
   let* _resp, body = Client.post uri in
   let* json_string = Cohttp_lwt.Body.to_string body in
   let access_token = access_token_of_yojson (Yojson.Safe.from_string json_string) in
-  (* printf "%s\n" json_string; *)
   Lwt.return (remove_trailing_dots access_token.access_token)
