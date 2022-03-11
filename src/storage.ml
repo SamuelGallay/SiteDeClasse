@@ -5,13 +5,22 @@ open Json
 let sprintf = Format.sprintf
 let ( let* ) = Lwt.bind
 
-let url = function
+let url ?(obj = "") = function
   | `Private ->
       Uri.of_string
-        "https://storage.googleapis.com/storage/v1/b/erudite-descent-342509-private-bucket/o"
+        ("https://storage.googleapis.com/storage/v1/b/erudite-descent-342509-private-bucket/o/"
+       ^ obj)
   | `Public ->
       Uri.of_string
-        "https://storage.googleapis.com/storage/v1/b/erudite-descent-342509-public-bucket/o"
+        ("https://storage.googleapis.com/storage/v1/b/erudite-descent-342509-public-bucket/o/" ^ obj)
+
+let upload_url = function
+  | `Private ->
+      Uri.of_string
+        "https://storage.googleapis.com/upload/storage/v1/b/erudite-descent-342509-private-bucket/o"
+  | `Public ->
+      Uri.of_string
+        "https://storage.googleapis.com/upload/storage/v1/b/erudite-descent-342509-public-bucket/o"
 
 let get_file_list bucket =
   let* resp, body = Client.get (url bucket) in
@@ -22,9 +31,22 @@ let get_file_list bucket =
   let obj_list = Json.object_list_of_yojson json_safe in
   Lwt.return (List.map (fun o -> (o.name, o.mediaLink)) obj_list.items)
 
+let get_file bucket name =
+  let* token = State.get_token () in
+  let uri = Uri.with_query' (url ~obj:name bucket) [ ("alt", "media") ] in
+  let* resp, body =
+    Client.get uri ~headers:(Header.of_list [ ("Authorization", sprintf "Bearer %s" token) ])
+  in
+  let* body_string = Cohttp_lwt.Body.to_string body in
+  let code = Code.code_of_status (Response.status resp) in
+  if code = 200 then Lwt.return (Some body_string)
+  else (
+    Dream.log "Failure : %s" body_string;
+    Lwt.return None)
+
 let push_file bucket name content =
   let* token = State.get_token () in
-  let uri = Uri.with_query' (url bucket) [ ("name", name); ("uploadType", "media") ] in
+  let uri = Uri.with_query' (upload_url bucket) [ ("name", name); ("uploadType", "media") ] in
   let* resp, body =
     Client.post
       ~headers:
@@ -34,9 +56,12 @@ let push_file bucket name content =
            ])
       ~body:(`String content) uri
   in
-  let _body_string = Cohttp_lwt.Body.to_string body in
+  let* body_string = Cohttp_lwt.Body.to_string body in
   let code = Code.code_of_status (Response.status resp) in
-  if code = 200 then Lwt.return `Success else Lwt.return `Failure
+  if code = 200 then Lwt.return `Success
+  else (
+    Dream.log "Failure : %s" body_string;
+    Lwt.return `Failure)
 
 let push_if_file_is_named (name, content) =
   let l = String.length content in

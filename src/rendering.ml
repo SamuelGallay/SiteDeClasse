@@ -30,7 +30,7 @@ let form_elt csrf_token =
     ~a:[ a_class [ "col-12" ] ]
     [
       form
-        ~a:[ a_action "/form"; a_method `Post; a_enctype "multipart/form-data" ]
+        ~a:[ a_action "/upload_documents"; a_method `Post; a_enctype "multipart/form-data" ]
         [
           input ~a:[ a_input_type `Hidden; a_name "dream.csrf"; a_value csrf_token ] ();
           label
@@ -60,19 +60,27 @@ let msg_elt id =
   let f x = li [ txt x ] in
   div ~a:[ a_class [ "orange-msg"; "col-12" ] ] [ txt "Messages :"; ul (List.map f msg) ]
 
-let text_elt csrf =
+let text_elt markdown csrf name =
   form
-    ~a:[ a_action "/upload"; a_method `Post ]
+    ~a:[ a_action ("/upload_markdown/" ^ name); a_method `Post ]
     [
       input ~a:[ a_input_type `Hidden; a_name "dream.csrf"; a_value csrf ] ();
-      textarea ~a:[ a_name "text" ] (txt !State.test);
+      textarea ~a:[ a_name "text" ] (txt markdown);
       button ~a:[ a_button_type `Submit ] [ txt "Mettre à jour" ];
     ]
 
-let content () = !State.test |> Omd.of_string |> Omd.to_html |> Unsafe.data
-let menu_nav = nav ~a:[] [ ul [ li [ txt "Hello" ] ] ]
+let html_of_markdown m = m |> Omd.of_string |> Omd.to_html |> Unsafe.data
 
-let index csrf id =
+let menu_nav =
+  let page_links = List.map (fun n -> li [ a ~a:[ a_href ("/" ^ n) ] [ txt n ] ]) State.page_list in
+  let connect_li =
+    li
+      ~a:[ a_style "float:right" ]
+      [ a ~a:[ a_class [ "active" ]; a_href "/connect" ] [ txt "Se connecter" ] ]
+  in
+  nav ~a:[] [ ul (page_links @ [ connect_li ]) ]
+
+let index csrf id markdown name =
   html header_elt
     (body
        [
@@ -82,7 +90,9 @@ let index csrf id =
            ~a:[ a_class [ "row" ] ]
            [
              div ~a:[ a_class [ "col-2"; "menu" ] ] (doc_elt csrf);
-             div ~a:[ a_class [ "col-8" ] ] [ content (); text_elt csrf ];
+             div
+               ~a:[ a_class [ "col-8" ] ]
+               [ html_of_markdown markdown; text_elt markdown csrf name ];
              div ~a:[ a_class [ "col-2" ] ] [ form_elt csrf; msg_elt id ];
            ];
        ])

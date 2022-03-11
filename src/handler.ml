@@ -1,5 +1,13 @@
 let ( let* ) = Lwt.bind
-let index r = Rendering.index (Dream.csrf_token r) (Dream.session_id r) |> Dream.html
+
+let markdown_page filename r =
+  let* markdown = Storage.get_file `Private (filename ^ ".md") in
+  let markdown =
+    match markdown with
+    | Some m -> m
+    | None -> "# Erreur, fichier non trouvé\nProblème de connexion avec la base de donnée."
+  in
+  Rendering.index (Dream.csrf_token r) (Dream.session_id r) markdown filename |> Dream.html
 
 let refresh_documents r =
   let* l = Storage.get_file_list `Public in
@@ -20,10 +28,12 @@ let push_documents r =
       State.add_message id "Error in Request";
       Dream.redirect r "/"
 
-let upload_markdown r =
+let upload_markdown name r =
   let* res = Dream.form r in
+  let id = Dream.session_id r in
   match res with
   | `Ok [ ("text", content) ] ->
-      State.test := content;
-      Dream.redirect r "/"
-  | _ -> Dream.redirect r "/"
+      let* result = Storage.push_file `Private (name ^ ".md") content in
+      if result = `Failure then State.add_message id "Failure to push Markdown";
+      Dream.redirect r ("/" ^ name)
+  | _ -> Dream.redirect r ("/" ^ name)

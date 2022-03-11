@@ -5,11 +5,14 @@ let () =
        x)
   @@ Dream.logger @@ Dream.memory_sessions
   @@ Dream.router
-       [
-         Dream.get "/" Handler.index;
-         Dream.post "/refresh_documents" Handler.refresh_documents;
-         Dream.get "/static/**" @@ Dream.static "static";
-         Dream.post "/form" Handler.push_documents;
-         Dream.get "/favicon.ico" (Dream.from_filesystem "static" "favicon.ico");
-         Dream.post "/upload" Handler.upload_markdown;
-       ]
+       ([
+          Dream.get "/" (Handler.markdown_page "index");
+          Dream.post "/refresh_documents" Handler.refresh_documents;
+          Dream.get "/static/**" @@ Dream.static "static";
+          Dream.post "/upload_documents" Handler.push_documents;
+          Dream.get "/favicon.ico" (Dream.from_filesystem "static" "favicon.ico");
+        ]
+       @ List.map (fun n -> Dream.get n (Handler.markdown_page n)) State.page_list
+       @ List.map
+           (fun n -> Dream.post ("upload_markdown/" ^ n) (Handler.upload_markdown n))
+           State.page_list)
