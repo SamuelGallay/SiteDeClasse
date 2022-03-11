@@ -1,7 +1,13 @@
 module StringMap = Map.Make (String)
 
 type token = { token : string; expiration : float }
-type session = { mutable messages : string list; mutable active_page : string }
+
+type session = {
+  mutable messages : string list;
+  mutable active_page : string;
+  mutable connected : bool;
+  mutable csrf : string;
+}
 
 type memory = {
   mutable token : token option;

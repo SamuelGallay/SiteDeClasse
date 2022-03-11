@@ -4,13 +4,14 @@ let s = Memory.server
 let markdown_page filename r =
   let se = Memory.get_session r in
   se.active_page <- filename;
+  se.csrf <- Dream.csrf_token r;
   let* markdown = Storage.get_file `Private (filename ^ ".md") in
   let markdown =
     match markdown with
     | Some m -> m
     | None -> "# Erreur, fichier non trouvé\nProblème de connexion avec la base de donnée."
   in
-  Rendering.index (Dream.csrf_token r) (Memory.get_session r) markdown |> Dream.html
+  Rendering.index (Memory.get_session r) markdown |> Dream.html
 
 let refresh_documents r =
   let se = Memory.get_session r in
@@ -41,3 +42,8 @@ let upload_markdown name r =
       if result = `Failure then se.messages <- "Failure to push Markdown" :: se.messages;
       Dream.redirect r se.active_page
   | _ -> Dream.redirect r se.active_page
+
+let connect r =
+  let se = Memory.get_session r in
+  se.connected <- not se.connected;
+  Dream.redirect r se.active_page

@@ -13,6 +13,7 @@ let () =
           Dream.get "/static/**" @@ Dream.static "static";
           Dream.post "/upload_documents" Handler.push_documents;
           Dream.get "/favicon.ico" (Dream.from_filesystem "static" "favicon.ico");
+          Dream.get "/connect" Handler.connect;
         ]
        @ List.map (fun n -> Dream.get n (Handler.markdown_page n)) s.page_list
        @ List.map

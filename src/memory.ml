@@ -9,7 +9,8 @@ let server =
     sessions = StringMap.empty;
   }
 
-let empty_session () = { messages = []; active_page = "index" }
+let empty_session () =
+  { messages = []; active_page = "index"; connected = false; csrf = "this-is-a-false-csrf-token" }
 
 let get_session r =
   let id = Dream.session_id r in
