@@ -1,3 +1,5 @@
+let s = Memory.server
+
 let () =
   Dream.run ~interface:"0.0.0.0" ~port:8080
   @@ (fun x ->
@@ -12,7 +14,7 @@ let () =
           Dream.post "/upload_documents" Handler.push_documents;
           Dream.get "/favicon.ico" (Dream.from_filesystem "static" "favicon.ico");
         ]
-       @ List.map (fun n -> Dream.get n (Handler.markdown_page n)) State.page_list
+       @ List.map (fun n -> Dream.get n (Handler.markdown_page n)) s.page_list
        @ List.map
            (fun n -> Dream.post ("upload_markdown/" ^ n) (Handler.upload_markdown n))
-           State.page_list)
+           s.page_list)

@@ -32,7 +32,7 @@ let get_file_list bucket =
   Lwt.return (List.map (fun o -> (o.name, o.mediaLink)) obj_list.items)
 
 let get_file bucket name =
-  let* token = State.get_token () in
+  let* token = Memory.get_token () in
   let uri = Uri.with_query' (url ~obj:name bucket) [ ("alt", "media") ] in
   let* resp, body =
     Client.get uri ~headers:(Header.of_list [ ("Authorization", sprintf "Bearer %s" token) ])
@@ -45,7 +45,7 @@ let get_file bucket name =
     Lwt.return None)
 
 let push_file bucket name content =
-  let* token = State.get_token () in
+  let* token = Memory.get_token () in
   let uri = Uri.with_query' (upload_url bucket) [ ("name", name); ("uploadType", "media") ] in
   let* resp, body =
     Client.post

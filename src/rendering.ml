@@ -1,5 +1,7 @@
 open Tyxml.Html
+open BasicTypes
 
+let s = Memory.server
 let sprintf = Format.sprintf
 let html_to_string html = Format.asprintf "%a" (Tyxml.Html.pp ()) html
 
@@ -49,14 +51,10 @@ let refresh csrf =
     ]
 
 let doc_elt csrf =
-  match !State.documents with
-  | None -> [ refresh csrf ]
-  | Some l ->
-      let f (name, link) = li [ a ~a:[ a_href link ] [ txt name ] ] in
-      [ ul (List.map f l); refresh csrf ]
+  let f (name, link) = li [ a ~a:[ a_href link ] [ txt name ] ] in
+  [ ul (List.map f s.document_list); refresh csrf ]
 
-let msg_elt id =
-  let msg = State.get_messages id in
+let msg_elt msg =
   let f x = li [ txt x ] in
   div ~a:[ a_class [ "orange-msg"; "col-12" ] ] [ txt "Messages :"; ul (List.map f msg) ]
 
@@ -72,7 +70,7 @@ let text_elt markdown csrf name =
 let html_of_markdown m = m |> Omd.of_string |> Omd.to_html |> Unsafe.data
 
 let menu_nav =
-  let page_links = List.map (fun n -> li [ a ~a:[ a_href ("/" ^ n) ] [ txt n ] ]) State.page_list in
+  let page_links = List.map (fun n -> li [ a ~a:[ a_href ("/" ^ n) ] [ txt n ] ]) s.page_list in
   let connect_li =
     li
       ~a:[ a_style "float:right" ]
@@ -80,11 +78,13 @@ let menu_nav =
   in
   nav ~a:[] [ ul (page_links @ [ connect_li ]) ]
 
-let index csrf id markdown name =
+let index csrf se markdown =
   html header_elt
     (body
        [
-         header ~a:[ a_class [ "row" ] ] [ h1 [ txt "Main Title" ] ];
+         header
+           ~a:[ a_class [ "row" ] ]
+           [ h1 [ txt "ENS Rennes - Promotion 2021 - Mathématiques" ] ];
          menu_nav;
          div
            ~a:[ a_class [ "row" ] ]
@@ -92,8 +92,8 @@ let index csrf id markdown name =
              div ~a:[ a_class [ "col-2"; "menu" ] ] (doc_elt csrf);
              div
                ~a:[ a_class [ "col-8" ] ]
-               [ html_of_markdown markdown; text_elt markdown csrf name ];
-             div ~a:[ a_class [ "col-2" ] ] [ form_elt csrf; msg_elt id ];
+               [ html_of_markdown markdown; text_elt markdown csrf se.active_page ];
+             div ~a:[ a_class [ "col-2" ] ] [ form_elt csrf; msg_elt se.messages ];
            ];
        ])
   |> html_to_string
