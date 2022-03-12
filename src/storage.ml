@@ -5,6 +5,19 @@ open Json
 let sprintf = Format.sprintf
 let ( let* ) = Lwt.bind
 
+let get_token =
+  let open BasicTypes in
+  let token : token option ref = ref None in
+  let update_token () =
+    let* tok = Crypto.get_token () in
+    token := Some tok;
+    Lwt.return tok.token
+  in
+  fun () ->
+    match !token with
+    | None -> update_token ()
+    | Some tok -> if Unix.time () < tok.expiration then Lwt.return tok.token else update_token ()
+
 let url ?(obj = "") = function
   | `Private ->
       Uri.of_string
@@ -32,7 +45,7 @@ let get_file_list bucket =
   Lwt.return (List.map (fun o -> (o.name, o.mediaLink)) obj_list.items)
 
 let get_file bucket name =
-  let* token = Memory.get_token () in
+  let* token = get_token () in
   let uri = Uri.with_query' (url ~obj:name bucket) [ ("alt", "media") ] in
   let* resp, body =
     Client.get uri ~headers:(Header.of_list [ ("Authorization", sprintf "Bearer %s" token) ])
@@ -45,7 +58,7 @@ let get_file bucket name =
     Lwt.return None)
 
 let push_file bucket name content =
-  let* token = Memory.get_token () in
+  let* token = get_token () in
   let uri = Uri.with_query' (upload_url bucket) [ ("name", name); ("uploadType", "media") ] in
   let* resp, body =
     Client.post

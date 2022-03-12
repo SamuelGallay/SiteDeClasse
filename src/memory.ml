@@ -1,16 +1,32 @@
 open BasicTypes
 
-(* The in memory state of the server is stored here *)
-let server =
+(* ******************************************************************** *)
+(*                      All server memory is here                       *)
+(* ******************************************************************** *)
+
+let server = { pages = StringMap.empty; document_list = []; sessions = StringMap.empty }
+
+(* ******************************************************************** *)
+(*                   Helper functions to interact with memory           *)
+(* ******************************************************************** *)
+
+let default_page () =
   {
-    token = None;
-    page_list = [ "index"; "cours"; "test" ];
-    document_list = [];
-    sessions = StringMap.empty;
+    id = "error_page";
+    name = "Error Page";
+    endpoint = "/error";
+    markdown = "# Error loading page.\nYou are nowhere...";
   }
 
 let empty_session () =
-  { messages = []; active_page = "index"; connected = false; csrf = "this-is-a-false-csrf-token" }
+  {
+    messages = [];
+    active_page = default_page ();
+    connected = false;
+    csrf = "this-is-a-false-csrf-token";
+  }
+
+let get_page_list () = server.pages |> StringMap.to_seq |> List.of_seq |> List.map snd
 
 let get_session r =
   let id = Dream.session_id r in
@@ -21,12 +37,22 @@ let get_session r =
       server.sessions <- StringMap.add id new_session server.sessions;
       new_session
 
-let get_token () =
-  let update_token () =
-    let* tok = Crypto.get_token () in
-    server.token <- Some tok;
-    Lwt.return tok.token
+let reload_page p =
+  let* markdown = Storage.get_file `Private (p.id ^ ".md") in
+  let markdown =
+    match markdown with
+    | Some m -> m
+    | None -> "# Erreur, fichier non trouvé\nProblème de connexion avec la base de donnée."
   in
-  match server.token with
-  | None -> update_token ()
-  | Some tok -> if Unix.time () < tok.expiration then Lwt.return tok.token else update_token ()
+  p.markdown <- markdown;
+  Lwt.return ()
+
+let create_page id =
+  let p =
+    { id; name = id; endpoint = "/" ^ id; markdown = "# Error loading page.\nYou are nowhere..." }
+  in
+  server.pages <- StringMap.add id p server.pages;
+  reload_page p
+
+let get_page id =
+  match StringMap.find_opt id server.pages with None -> default_page () | Some p -> p

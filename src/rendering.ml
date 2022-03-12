@@ -33,7 +33,8 @@ let html_head =
     ]
 
 let menu_nav se =
-  let page_links = List.map (fun n -> li [ a ~a:[ a_href ("/" ^ n) ] [ txt n ] ]) s.page_list in
+  let page_list = Memory.get_page_list () in
+  let page_links = List.map (fun p -> li [ a ~a:[ a_href p.endpoint ] [ txt p.name ] ]) page_list in
   let connect_li =
     li
       ~a:[ a_style "float:right" ]
@@ -99,14 +100,14 @@ let messages_div se =
 (*                        Markdown                                      *)
 (* ******************************************************************** *)
 
-let input_markdown_form markdown se =
+let input_markdown_form se =
   if not se.connected then empty_div
   else
     form
-      ~a:[ a_action ("/upload_markdown/" ^ se.active_page); a_method `Post ]
+      ~a:[ a_action ("/upload_markdown/" ^ se.active_page.id); a_method `Post ]
       [
         input ~a:[ a_input_type `Hidden; a_name "dream.csrf"; a_value se.csrf ] ();
-        textarea ~a:[ a_name "text" ] (txt markdown);
+        textarea ~a:[ a_name "text" ] (txt se.active_page.markdown);
         button ~a:[ a_button_type `Submit ] [ txt "Mettre à jour" ];
       ]
 
@@ -116,7 +117,7 @@ let html_of_markdown m = m |> Omd.of_string |> Omd.to_html |> Unsafe.data
 (*                        General Layout                                *)
 (* ******************************************************************** *)
 
-let index se markdown =
+let markdown_page se =
   html html_head
     (body
        [
@@ -130,7 +131,7 @@ let index se markdown =
              div ~a:[ a_class [ "col-2" ] ] [ messages_div se ];
              div
                ~a:[ a_class [ "col-8" ] ]
-               [ html_of_markdown markdown; input_markdown_form markdown se ];
+               [ html_of_markdown se.active_page.markdown; input_markdown_form se ];
              div ~a:[ a_class [ "col-2" ] ] [ documents_div se ];
            ];
        ])

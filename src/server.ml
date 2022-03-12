@@ -1,10 +1,10 @@
-let s = Memory.server
+open BasicTypes
 
-let () =
-  Dream.run ~interface:"0.0.0.0" ~port:8080
-  @@ (fun x ->
-       Mirage_crypto_rng_lwt.initialize ();
-       x)
+let promise =
+  let () = Mirage_crypto_rng_lwt.initialize () in
+  let* () = [ "index"; "cours"; "test" ] |> List.map Memory.create_page |> Lwt.join in
+  let* () = Lwt_io.write_line Lwt_io.stdout "Server Started..." in
+  Dream.serve ~interface:"0.0.0.0" ~port:8080
   @@ Dream.logger @@ Dream.memory_sessions
   @@ Dream.router
        ([
@@ -15,7 +15,9 @@ let () =
           Dream.get "/favicon.ico" (Dream.from_filesystem "static" "favicon.ico");
           Dream.get "/connect" Handler.connect;
         ]
-       @ List.map (fun n -> Dream.get n (Handler.markdown_page n)) s.page_list
+       @ List.map (fun p -> Dream.get p.id (Handler.markdown_page p.id)) (Memory.get_page_list ())
        @ List.map
-           (fun n -> Dream.post ("upload_markdown/" ^ n) (Handler.upload_markdown n))
-           s.page_list)
+           (fun p -> Dream.post ("upload_markdown/" ^ p.id) (Handler.upload_markdown p.id))
+           (Memory.get_page_list ()))
+
+let () = Lwt_main.run promise
