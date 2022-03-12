@@ -40,8 +40,8 @@ let upload_markdown name r =
   | `Ok [ ("text", content) ] ->
       let* result = Storage.push_file `Private (name ^ ".md") content in
       if result = `Failure then se.messages <- "Failure to push Markdown" :: se.messages;
-      Dream.redirect r se.active_page
-  | _ -> Dream.redirect r se.active_page
+      Dream.redirect r ("/" ^ se.active_page)
+  | _ -> Dream.redirect r ("/" ^ se.active_page)
 
 let connect r =
   let se = Memory.get_session r in
