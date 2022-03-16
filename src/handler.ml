@@ -2,15 +2,17 @@ let ( let* ) = Lwt.bind
 let s = Memory.server
 let sprintf = Format.sprintf
 
-let markdown_page page_id r =
+let markdown_page r =
   let se = Memory.get_session r in
+  let page_id = Dream.param r "page_id" in
   let page = Memory.get_page page_id in
   se.active_page <- page;
   se.csrf <- Dream.csrf_token r;
   Rendering.markdown_page se |> Dream.html
 
-let upload_markdown page_id r =
+let upload_markdown r =
   let* res = Dream.form r in
+  let page_id = Dream.param r "page_id" in
   let se = Memory.get_session r in
   match res with
   | `Ok [ ("text", content) ] -> (
@@ -30,11 +32,13 @@ let login_post r =
   match res with
   | `Ok [ ("password", password); ("username", username) ] ->
       se.connected <- Memory.verify username password;
-      if not se.connected then Dream.log "Password Error";
-      Dream.redirect r se.active_page.endpoint
+      if se.connected then Dream.redirect r se.active_page.endpoint
+      else (
+        Dream.log "Password Error";
+        Dream.redirect r "/login")
   | _ ->
       Dream.log "Form Error";
-      Dream.redirect r se.active_page.endpoint
+      Dream.redirect r "/login"
 
 let logout r =
   let se = Memory.get_session r in
@@ -46,16 +50,7 @@ let login_get r =
   se.csrf <- Dream.csrf_token r;
   Rendering.login_page se |> Dream.html
 
-let refresh_documents r =
-  let se = Memory.get_session r in
-  let* l = Storage.get_file_list `Public in
-  match l with
-  | Ok l ->
-      s.document_list <- l;
-      Dream.redirect r se.active_page.endpoint
-  | Error _ -> Dream.redirect r se.active_page.endpoint
-
-let refresh_users r =
+let reload_users r =
   let se = Memory.get_session r in
   let* () = Memory.reload_users () in
   Dream.redirect r se.active_page.endpoint
@@ -85,7 +80,21 @@ let push_documents r =
       let* messages = files |> List.map push_if_file_is_named |> Lwt.all in
       se.messages <- messages @ se.messages;
       if messages = [] then se.messages <- "No file selected" :: se.messages;
-      Dream.redirect r se.active_page.endpoint
+      let* () = Memory.reload_documents () in
+      Dream.redirect r "/documents"
   | _ ->
       se.messages <- "Error in Request" :: se.messages;
-      Dream.redirect r se.active_page.endpoint
+      Dream.redirect r "/documents"
+
+let documents_page r =
+  let se = Memory.get_session r in
+  se.csrf <- Dream.csrf_token r;
+  Rendering.documents_page se |> Dream.html
+
+let edit_markdown r =
+  let se = Memory.get_session r in
+  let page_id = Dream.param r "page_id" in
+  let page = Memory.get_page page_id in
+  se.active_page <- page;
+  se.csrf <- Dream.csrf_token r;
+  Rendering.edit_page se |> Dream.html

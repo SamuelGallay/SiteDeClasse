@@ -70,6 +70,14 @@ let reload_users () =
   List.iter (fun u -> server.users <- StringMap.add u.pseudo u server.users) ul;
   Lwt.return ()
 
+let reload_documents () =
+  let* l = Storage.get_file_list `Public in
+  match l with
+  | Ok l ->
+      server.document_list <- l;
+      Lwt.return ()
+  | Error _ -> Lwt.return ()
+
 let verify pseudo pwd =
   let user = StringMap.find pseudo server.users in
   let encoded = user.hashed_password in

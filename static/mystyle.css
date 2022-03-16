@@ -1,3 +1,6 @@
+/* ******************************************************************** */
+/*                          General Style                               */
+/* ******************************************************************** */
 * {
     box-sizing: border-box;
 }
@@ -8,18 +11,9 @@ html, body {
     font-family: "Lucida Sans", sans-serif;
 }
 
-/* Page Organization */
-
-.menu {
-    /* width: 25%; */
-    float: left;
-}
-
-.main {
-    /* width: 75%; */
-    float: left;
-}
-
+/* ******************************************************************** */
+/*                          Header                                      */
+/* ******************************************************************** */
 header {
     text-align: center;
     background-color: #9933cc;
@@ -27,17 +21,19 @@ header {
     padding: 15px;
 }
 
-.full-width {
-  width:100%;
+/* ******************************************************************** */
+/*                         Navbar                                       */
+/* ******************************************************************** */
+nav {
+  text-align: center;
 }
 
-/* Navbar */
 nav ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background-color: #333;
+  background-color: #333; /* Grey */
 }
 
 nav li {
@@ -52,68 +48,53 @@ nav li a {
   text-decoration: none;
 }
 
-nav li a:hover:not(.active) {
-  background-color: #111;
+nav li a:hover:not(.connect):not(.disconnect) {
+  background-color: #111; /* Black */
 }
 
-.active {
-  background-color: #04AA6D;
-}
-/* End Navbar */
-
-
-
-/* Menu */
-
-.menu ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
+.connect {
+  background-color: #04AA6D; /* Green */
 }
 
-.menu li {
-    padding: 8px;
-    margin-bottom: 7px;
-    background-color: #33b5e5;
-    color: #ffffff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+.disconnect {
+  background-color: #ff0000; /* Red */
 }
 
-button {
-    padding: 8px;
-    margin-bottom: 7px;
-    background-color: #f17713;
-    color: #ffffff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-    cursor: pointer;
-    width: 100%;
-}
 
+/* ******************************************************************** */
+/*                           Markdown                                   */
+/* ******************************************************************** */
 img {
     width: 100%;
 }
 
+
+/* ******************************************************************** */
+/*                           Edition                                    */
+/* ******************************************************************** */
 textarea {
     width: 100%;
-    height: 20em;
+    height: 60em;
 }
 
+
+/* ******************************************************************** */
+/*                         Actions Menu                                 */
+/* ******************************************************************** */
 .menu li:hover {
     background-color: #0099cc;
 }
 
-.custom-file-upload {
-    border: 1px solid #ccc;
-    display: inline-block;
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 7px;
-    background-color: #0099cc;
-    color: #ffffff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-    cursor: pointer;
-}
 
+
+/* ******************************************************************** */
+/*                          Documents Page                              */
+/* ******************************************************************** */
+
+
+/* ******************************************************************** */
+/*                            Messages                                  */
+/* ******************************************************************** */
 .red-msg {
   background-color: red;
 }
@@ -122,13 +103,13 @@ textarea {
   background-color: orange;
 }
 
-.row::after {
-    content: "";
-    clear: both;
-    display: table;
-}
 
-/* Columns size */
+/* ******************************************************************** */
+/*                         Columns                                      */
+/* ******************************************************************** */
+.full-width {
+  width:100%;
+}
 
 [class*="col-"] {
     float: left;
@@ -140,52 +121,11 @@ textarea {
 }
 
 @media only screen and (min-width: 900px) {
-
-    .col-1 {
-        width: 8.33%;
-    }
-
     .col-2 {
         width: 16.66%;
     }
 
-    .col-3 {
-        width: 25%;
-    }
-
-    .col-4 {
-        width: 33.33%;
-    }
-
-    .col-5 {
-        width: 41.66%;
-    }
-
-    .col-6 {
-        width: 50%;
-    }
-
-    .col-7 {
-        width: 58.33%;
-    }
-
     .col-8 {
         width: 66.66%;
-    }
-
-    .col-9 {
-        width: 75%;
-    }
-
-    .col-10 {
-        width: 83.33%;
-    }
-
-    .col-11 {
-        width: 91.66%;
-    }
-
-    .col-12 {
-        width: 100%;
     }
 }
