@@ -1,7 +1,6 @@
 (* ******************************************************************** *)
 (*                      Utilitary and Base64url                         *)
 (* ******************************************************************** *)
-open Json
 open BasicTypes
 
 let sprintf = Format.sprintf
@@ -18,7 +17,7 @@ let base64url s =
 (* ******************************************************************** *)
 
 let string_private_key_of_json s =
-  let j = Json.private_key_of_yojson (Yojson.Safe.from_string s) in
+  let j = private_key_of_yojson (Yojson.Safe.from_string s) in
   j.private_key
 
 let string_private_key = Sys.getenv "WEBSITE_PRIVATE_KEY"
@@ -44,7 +43,7 @@ let base64url_signature_RSA_SHA256 s =
 
 let create_jwt () =
   let header =
-    { alg = "RS256"; typ = "JWT" } |> Json.yojson_of_header |> Yojson.Safe.to_string |> base64url
+    { alg = "RS256"; typ = "JWT" } |> yojson_of_header |> Yojson.Safe.to_string |> base64url
   in
   let time = int_of_float (Unix.time ()) in
   let claim_set =

@@ -1,5 +1,5 @@
-(executable
- (name server)
- (libraries dream cohttp-lwt-unix yojson tyxml magic-mime x509 omd)
+(executables
+ (names server passwords)
+ (libraries dream cohttp-lwt-unix yojson tyxml magic-mime x509 omd argon2)
  (preprocess
   (pps ppx_yojson_conv)))

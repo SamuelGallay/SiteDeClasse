@@ -2,3 +2,4 @@ _build
 logfile.txt
 erudite-descent-342509-2378624bb3ab.json
 private_key.pem
+users.json

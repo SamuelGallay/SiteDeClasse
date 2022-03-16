@@ -39,9 +39,9 @@ let menu_nav se =
     li
       ~a:[ a_style "float:right" ]
       [
-        a
-          ~a:[ a_class [ "active" ]; a_href "/connect" ]
-          [ txt (if se.connected then "Se déconnecter" else "Se connecter") ];
+        (if not se.connected then
+         a ~a:[ a_class [ "active" ]; a_href "/login" ] [ txt "Se connecter" ]
+        else a ~a:[ a_class [ "active" ]; a_href "/logout" ] [ txt "Se déconnecter" ]);
       ]
   in
   nav ~a:[] [ ul (page_links @ [ connect_li ]) ]
@@ -133,6 +133,33 @@ let markdown_page se =
                ~a:[ a_class [ "col-8" ] ]
                [ html_of_markdown se.active_page.markdown; input_markdown_form se ];
              div ~a:[ a_class [ "col-2" ] ] [ documents_div se ];
+           ];
+       ])
+  |> html_to_string
+
+let login_form se =
+  form
+    ~a:[ a_action "/login"; a_method `Post ]
+    [
+      input ~a:[ a_input_type `Hidden; a_name "dream.csrf"; a_value se.csrf ] ();
+      input ~a:[ a_input_type `Text; a_name "username" ] ();
+      input ~a:[ a_input_type `Password; a_name "password" ] ();
+      button ~a:[ a_button_type `Submit ] [ txt "Login" ];
+    ]
+
+let login_page se =
+  html html_head
+    (body
+       [
+         header
+           ~a:[ a_class [ "row" ] ]
+           [ h1 [ txt "ENS Rennes - Promotion 2021 - Mathématiques" ] ];
+         div
+           ~a:[ a_class [ "row" ] ]
+           [
+             div ~a:[ a_class [ "col-2" ] ] [];
+             div ~a:[ a_class [ "col-8" ] ] [ login_form se ];
+             div ~a:[ a_class [ "col-2" ] ] [];
            ];
        ])
   |> html_to_string
