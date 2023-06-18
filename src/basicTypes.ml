@@ -1,4 +1,5 @@
 module StringMap = Map.Make (String)
+open Ppx_yojson_conv_lib.Yojson_conv.Primitives
 
 type token = { token : string; expiration : float }
 type page = { id : string; name : string; endpoint : string; mutable markdown : string }

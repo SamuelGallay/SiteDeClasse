@@ -45,7 +45,12 @@ let get_file_list bucket =
     let file_list = List.map (fun (o : storage_object) -> (o.name, o.mediaLink)) obj_list.items in
     Lwt.return (Ok file_list)
 
-let get_file bucket name =
+let get_file _bucket name =
+  let* f = Lwt_io.open_file ~mode:Lwt_io.Input ("storage/" ^ name) in
+  let* s = Lwt_io.read f in
+  Lwt.return (Ok s)
+
+let get_file_fancy bucket name =
   let* token = get_token () in
   let uri = Uri.with_query' (url ~obj:name bucket) [ ("alt", "media") ] in
   let* resp, body =
@@ -55,7 +60,12 @@ let get_file bucket name =
   let code = Code.code_of_status (Response.status resp) in
   if code = 200 then Lwt.return (Ok body_string) else Lwt.return (Error body_string)
 
-let push_file bucket name content =
+let push_file _bucket name content =
+  let* f = Lwt_io.open_file ~mode:Lwt_io.Output ("storage/" ^ name) in
+  let* s = Lwt_io.write f content in
+  Lwt.return (Ok s)
+
+let push_file_fancy bucket name content =
   let* token = get_token () in
   let uri = Uri.with_query' (upload_url bucket) [ ("name", name); ("uploadType", "media") ] in
   let* resp, body =

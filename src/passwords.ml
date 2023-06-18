@@ -59,7 +59,7 @@ let verify user_name pwd =
   | Error s -> Lwt_io.printf "Error : %s\n" (Argon2.ErrorCodes.message s)
 
 let main () =
-  Mirage_crypto_rng_lwt.initialize ();
+  Mirage_crypto_rng_lwt.initialize (module Mirage_crypto_rng.Fortuna);
   let () = Arg.parse speclist set_mode usage_message in
   match !mode with
   | NoMode -> failwith "No mode selected"

@@ -20,19 +20,18 @@ let string_private_key_of_json s =
   let j = private_key_of_yojson (Yojson.Safe.from_string s) in
   j.private_key
 
-let string_private_key = Sys.getenv "WEBSITE_PRIVATE_KEY"
-
-let mirage_private_key =
-  match X509.Private_key.decode_pem (Cstruct.of_string string_private_key) with
-  | Ok (`RSA k) -> k
-  | Ok _ -> failwith "Wrong key format"
-  | Error (`Msg s) -> failwith ("Error in m : " ^ s)
-
 (* ******************************************************************** *)
 (*                          Signature                                   *)
 (* ******************************************************************** *)
 
 let base64url_signature_RSA_SHA256 s =
+  let mirage_private_key =
+    let string_private_key = Sys.getenv "WEBSITE_PRIVATE_KEY" in
+    match X509.Private_key.decode_pem (Cstruct.of_string string_private_key) with
+    | Ok (`RSA k) -> k
+    | Ok _ -> failwith "Wrong key format"
+    | Error (`Msg s) -> failwith ("Error in m : " ^ s)
+  in
   Mirage_crypto_pk.Rsa.PKCS1.sign ~hash:`SHA256 ~key:mirage_private_key
     (`Message (Cstruct.of_string s))
   |> Cstruct.to_string |> base64url

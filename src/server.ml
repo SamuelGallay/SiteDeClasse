@@ -22,7 +22,7 @@ let routes =
   ]
 
 let main =
-  let () = Mirage_crypto_rng_lwt.initialize () in
+  Mirage_crypto_rng_lwt.initialize (module Mirage_crypto_rng.Fortuna);
   let* () = [ "index"; "cours"; "test" ] |> List.map Memory.create_page |> Lwt.join in
   let* () = Memory.reload_users () in
   let* () = Memory.reload_documents () in
